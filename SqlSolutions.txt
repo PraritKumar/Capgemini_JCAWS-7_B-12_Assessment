@@ -1,0 +1,101 @@
+1. WAQ to display second highest salary in HR schema.
+
+query:  
+postgres=# select MAX(salary) from employees 
+postgres-# where salary < (select MAX(salary) from employees);
+   max
+----------
+ 17000.00
+(1 row)
+
+2. WAQ to display name of employee who is earning maximum in his/her department.
+
+query:
+postgres=# SELECT department_id, first_name, salary FROM employees d 
+postgres-# WHERE salary = (SELECT MAX(salary) FROM employees WHERE department_id = d.department_id);
+ department_id | first_name |  salary
+---------------+------------+----------
+            90 | Steven     | 24000.00
+            60 | Alexander  |  9000.00
+           100 | Nancy      | 12000.00
+            30 | Den        | 11000.00
+            50 | Adam       |  8200.00
+            80 | John       | 14000.00
+            10 | Jennifer   |  4400.00
+            20 | Michael    | 13000.00
+            40 | Susan      |  6500.00
+            70 | Hermann    | 10000.00
+           110 | Shelley    | 12000.00
+(11 rows)
+
+3. WAQ to display emplyees count who are working from same location.
+
+query:
+postgres=# select l.city , count(e.first_name) as Employees from employees e, departments d , locations l 
+postgres-# where e.department_id = d.department_id and d.location_id = l.location_id group by city;
+        city         | employees
+---------------------+-----------
+ Southlake           |         5
+ London              |         1
+ South San Francisco |        45
+ Toronto             |         2
+ Seattle             |        18
+ Oxford              |        34
+ Munich              |         1
+(7 rows)
+
+4. WAQ to display number of employees joined year wise.
+
+query:  
+postgres=# SELECT to_char(hire_date, 'yyyy') as YEAR , COUNT(first_name) as Employees FROM employees
+postgres-# GROUP BY to_char(hire_date, 'yyyy')
+postgres-# ORDER BY to_char(hire_date, 'yyyy') ;
+ year | employees
+------+-----------
+ 1987 |         2
+ 1989 |         1
+ 1990 |         1
+ 1991 |         1
+ 1993 |         1
+ 1994 |         7
+ 1995 |         4
+ 1996 |        10
+ 1997 |        28
+ 1998 |        23
+ 1999 |        18
+ 2000 |        11
+(12 rows)  
+
+5. WAQ to top 2 earning employee name and salary in each department.
+query:
+postgres=# select emp1.department_id, emp1.salary, emp1.first_name
+postgres-# from employees emp1
+postgres-# where (
+postgres(# select count(distinct(emp2.salary))
+postgres(# from employees emp2
+postgres(# where emp2.salary>emp1.salary and emp1.department_id=emp2.department_id) in (0,1) group by emp1.department_id, emp1.salary,emp1.first_name
+postgres-# order by emp1.department_id, salary desc;
+ department_id |  salary  | first_name
+---------------+----------+------------
+            10 |  4400.00 | Jennifer
+            20 | 13000.00 | Michael
+            20 |  6000.00 | Pat
+            30 | 11000.00 | Den
+            30 |  3100.00 | Alexander
+            40 |  6500.00 | Susan
+            50 |  8200.00 | Adam
+            50 |  8000.00 | Matthew
+            60 |  9000.00 | Alexander
+            60 |  6000.00 | Bruce
+            70 | 10000.00 | Hermann
+            80 | 14000.00 | John
+            80 | 13500.00 | Karen
+            90 | 24000.00 | Steven
+            90 | 17000.00 | Lex
+            90 | 17000.00 | Neena
+           100 | 12000.00 | Nancy
+           100 |  9000.00 | Daniel
+           110 | 12000.00 | Shelley
+           110 |  8300.00 | William
+               |  7000.00 | Kimberely
+(21 rows)
